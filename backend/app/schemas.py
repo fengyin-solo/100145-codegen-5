@@ -89,6 +89,18 @@ class DiseaseEntry(BaseModel):
     field_6: str | None = None  # 登记人员
     field_7: str | None = None  # 病害状态
 
+class EmergencyEntry(BaseModel):
+    """突发事件明细结构。"""
+
+    field_0: str | None = None  # 事件编号
+    field_1: str | None = None  # 事件类型
+    field_2: str | None = None  # 发生位置
+    field_3: str | None = None  # 影响范围
+    field_4: str | None = None  # 处置班组
+    field_5: str | None = None  # 上报时间
+    field_6: str | None = None  # 上报人员
+    field_7: str | None = None  # 处置时限
+
 class AssessEntry(BaseModel):
     """评定记录明细结构。"""
 

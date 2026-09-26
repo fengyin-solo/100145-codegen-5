@@ -3,6 +3,203 @@ from __future__ import annotations
 
 from typing import Any
 
+
+def _emergency_seed_row(
+    row_id: int,
+    *,
+    code: str,
+    kind: str,
+    location: str,
+    impact: str,
+    crew: str,
+    reporter: str,
+    reported_at: Any,
+    status: str,
+    sla_hours: int,
+    stage_times: dict[str, Any],
+) -> dict[str, Any]:
+    """组装一条突发事件样例；stage_times 给出各处置阶段的发生时间，
+    据此回溯完整处置经过，保证看板与详情看到的是同一份状态。
+    """
+    stage_notes = {
+        "待处置": "应急中心接报登记，等待班组出动",
+        "处置中": "班组到达现场，设置围挡并开展处置",
+        "已控制": "险情已控制，现场转入清理收尾",
+        "已恢复": "路面清理验收完毕，道路恢复正常通行",
+    }
+    timeline = [
+        {
+            "stage": stage,
+            "time": stage_times[stage],
+            "crew": crew if stage != "待处置" else "应急中心",
+            "note": stage_notes[stage],
+        }
+        for stage in ("待处置", "处置中", "已控制", "已恢复")
+        if stage in stage_times
+    ]
+    return {
+        "id": row_id,
+        "status": status,
+        "pending": status != "已恢复",
+        "abnormal": False,
+        "事件编号": code,
+        "事件类型": kind,
+        "发生位置": location,
+        "影响范围": impact,
+        "处置班组": crew,
+        "上报时间": reported_at,
+        "上报人员": reporter,
+        "处置时限": f"{sla_hours}小时",
+        "timeline": timeline,
+    }
+
+
+def _build_emergency_rows() -> list[dict[str, Any]]:
+    """突发事件样例按「当前时间」回溯生成，保证任何时候起服务，
+    看板上都能同时看到待处置、处置中、已控制、已恢复与超期件。
+    """
+    from datetime import datetime, timedelta
+
+    def fmt(moment: datetime) -> str:
+        return moment.strftime("%Y-%m-%d %H:%M")
+
+    now = datetime.now().replace(minute=0, second=0, microsecond=0)
+
+    def at(hours: float) -> str:
+        return fmt(now + timedelta(hours=hours))
+
+    rows = [
+        # 待处置且已超 4 小时时限：道路塌陷，应急一队
+        _emergency_seed_row(
+            1,
+            code="EMER-0001",
+            kind="道路塌陷",
+            location="中山一路与建设大街交口东行 150 米",
+            impact="东行最右侧车道封闭，约 80 米",
+            crew="应急一队",
+            reporter="值班长 周敏",
+            reported_at=at(-6),
+            status="待处置",
+            sla_hours=4,
+            stage_times={"待处置": at(-6)},
+        ),
+        # 处置中、未超 6 小时时限：路面油污
+        _emergency_seed_row(
+            2,
+            code="EMER-0002",
+            kind="路面油污",
+            location="二环高架南向 K12+300",
+            impact="南向应急车道与一条行车道封闭，约 120 米",
+            crew="应急二队",
+            reporter="巡查员 李强",
+            reported_at=at(-3),
+            status="处置中",
+            sla_hours=6,
+            stage_times={"待处置": at(-3), "处置中": at(-2.5)},
+        ),
+        # 已控制、已超 2 小时时限：倒树，应急三队
+        _emergency_seed_row(
+            3,
+            code="EMER-0003",
+            kind="倒伏树木",
+            location="湖滨路市民中心西门对开",
+            impact="北行两条车道临时封闭，约 50 米",
+            crew="应急三队",
+            reporter="市民热线转办",
+            reported_at=at(-5),
+            status="已控制",
+            sla_hours=2,
+            stage_times={"待处置": at(-5), "处置中": at(-4.5), "已控制": at(-4)},
+        ),
+        # 处置中且超期：道路塌陷，应急一队
+        _emergency_seed_row(
+            4,
+            code="EMER-0004",
+            kind="道路塌陷",
+            location="工业大道物流园 3 号门门前",
+            impact="出入口半幅封闭，约 30 米",
+            crew="应急一队",
+            reporter="值班长 周敏",
+            reported_at=at(-10),
+            status="处置中",
+            sla_hours=4,
+            stage_times={"待处置": at(-10), "处置中": at(-9)},
+        ),
+        # 待处置、未超期：积水路面，市政排水队
+        _emergency_seed_row(
+            5,
+            code="EMER-0005",
+            kind="积水路面",
+            location="人民路下穿隧道南口",
+            impact="隧道入口积水，小型车辆缓行",
+            crew="市政排水队",
+            reporter="巡查员 李强",
+            reported_at=at(-1),
+            status="待处置",
+            sla_hours=4,
+            stage_times={"待处置": at(-1)},
+        ),
+        # 今天已恢复，全程 3 小时，未超 6 小时时限
+        _emergency_seed_row(
+            6,
+            code="EMER-0006",
+            kind="路面油污",
+            location="解放大道体育中心公交站旁",
+            impact="最右侧车道短时封闭，约 40 米",
+            crew="应急二队",
+            reporter="巡查员 王芳",
+            reported_at=at(-8),
+            status="已恢复",
+            sla_hours=6,
+            stage_times={
+                "待处置": at(-8),
+                "处置中": at(-7.5),
+                "已控制": at(-6),
+                "已恢复": at(-5),
+            },
+        ),
+        # 三天前已恢复，验证时间范围切换时件数随上报时间变化
+        _emergency_seed_row(
+            7,
+            code="EMER-0007",
+            kind="倒伏树木",
+            location="青云山隧道北口匝道",
+            impact="匝道单向封闭约 1 小时，约 60 米",
+            crew="应急三队",
+            reporter="市民热线转办",
+            reported_at=at(-74),
+            status="已恢复",
+            sla_hours=2,
+            stage_times={
+                "待处置": at(-74),
+                "处置中": at(-73.5),
+                "已控制": at(-72.5),
+                "已恢复": at(-72),
+            },
+        ),
+        # 影响范围缺失：可以登记，但不进入看板统计
+        {
+            "id": 8,
+            "status": "处置中",
+            "pending": True,
+            "abnormal": False,
+            "事件编号": "EMER-0008",
+            "事件类型": "道路塌陷",
+            "发生位置": "迎宾大道高速出口连接线",
+            "影响范围": "",
+            "处置班组": "市政排水队",
+            "上报时间": at(-2),
+            "上报人员": "值班长 周敏",
+            "处置时限": "4小时",
+            "timeline": [
+                {"stage": "待处置", "time": at(-2), "crew": "应急中心", "note": "应急中心接报登记，等待班组出动"},
+                {"stage": "处置中", "time": at(-1.5), "crew": "市政排水队", "note": "班组到达现场，设置围挡并开展处置"},
+            ],
+        },
+    ]
+    return rows
+
+
 SEED_ROWS: dict[str, list[dict[str, Any]]] = {
     "road": [{'id': 1,
   'status': '待移交',
@@ -651,5 +848,7 @@ SEED_ROWS: dict[str, list[dict[str, Any]]] = {
   '存放位置': '设施档案样例3',
   '归档人员': '设施档案样例3',
   '归档日期': '2026-09-03',
-  '档案状态': '设施档案样例3'}]
+  '档案状态': '设施档案样例3'}],
+    "emergency": _build_emergency_rows(),
 }
+
