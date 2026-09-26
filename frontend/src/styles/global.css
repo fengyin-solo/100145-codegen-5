@@ -33,3 +33,84 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .link { border: none; background: none; color: var(--brand); cursor: pointer; padding: 0; }
 .page-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--muted); }
 .error-text { color: #b42318; }
+
+/* ---- 突发事件应急看板 ---- */
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.panel-head h3 { margin: 0; font-size: 14px; }
+.panel-hint { color: var(--muted); font-size: 12px; }
+.filter-hint { align-self: center; color: var(--muted); font-size: 12px; }
+.filter-item select, .filter-item input { border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 13px; background: #fff; }
+
+.stat-card.tone-wait .stat-value { color: #b45309; }
+.stat-card.tone-doing .stat-value { color: var(--brand); }
+.stat-card.tone-controlled .stat-value { color: #0e7490; }
+.stat-card.tone-done .stat-value { color: #15803d; }
+.stat-card.tone-overdue .stat-value { color: #b42318; }
+.stat-sub { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+.crew-grid { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; }
+.crew-card { flex: 1 1 200px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.crew-card.alert { border-color: #f3b0a7; background: #fef6f5; }
+.crew-name { font-size: 13px; font-weight: 600; }
+.crew-main { margin: 6px 0; }
+.crew-main strong { font-size: 22px; margin-right: 4px; }
+.crew-main span { color: var(--muted); font-size: 12px; }
+.crew-meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 12px; }
+.crew-overdue { margin-top: 6px; color: #b42318; font-size: 12px; font-weight: 600; }
+.crew-ok { margin-top: 6px; color: #15803d; font-size: 12px; }
+
+.inline-empty { text-align: center; padding: 22px 12px; color: var(--muted); }
+.inline-empty-icon { font-size: 26px; }
+.inline-empty-title { margin: 6px 0 2px; font-weight: 600; color: #374151; }
+.inline-empty-desc { margin: 0 0 10px; font-size: 12px; }
+.table-empty { border: 1px dashed var(--border); border-radius: 8px; }
+
+.invalid-panel { border-color: #f3b0a7; }
+.invalid-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.invalid-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.invalid-tag { background: #fef0ee; color: #b42318; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+.invalid-meta { color: var(--muted); font-size: 12px; }
+
+.status-pill { display: inline-block; border-radius: 10px; padding: 1px 10px; font-size: 12px; background: #eef2f7; color: #475569; }
+.status-pill[data-status='待处置'] { background: #fdf1e3; color: #b45309; }
+.status-pill[data-status='处置中'] { background: #e8f0fe; color: var(--brand); }
+.status-pill[data-status='已控制'] { background: #e5f6fa; color: #0e7490; }
+.status-pill[data-status='已恢复'] { background: #e8f7ee; color: #15803d; }
+.overdue-text { color: #b42318; font-weight: 600; }
+.muted-text { color: var(--muted); }
+
+.notice { border-radius: 6px; padding: 8px 10px; font-size: 13px; margin-bottom: 10px; }
+.notice.error { background: #fef0ee; color: #b42318; }
+.notice.ok { background: #e8f7ee; color: #15803d; }
+.notice.warn { background: #fdf6e4; color: #92600a; }
+.notice-inline { font-size: 12px; margin-left: 8px; }
+.notice-inline.ok { color: #15803d; }
+.notice-inline.error { color: #b42318; }
+
+.modal-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); display: flex; align-items: center; justify-content: center; z-index: 30; }
+.modal { background: #fff; border-radius: 10px; width: 460px; max-width: 92vw; padding: 14px 16px; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.modal-head h3 { margin: 0; font-size: 15px; }
+.modal-body { display: flex; flex-direction: column; gap: 10px; }
+.form-item span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+.form-item em { color: #b42318; font-style: normal; margin-left: 2px; }
+.form-item input, .form-item textarea { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; font-family: inherit; }
+.form-hint { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 8px; }
+
+.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 16px; margin: 0 0 10px; }
+.detail-grid dt { color: var(--muted); font-size: 12px; }
+.detail-grid dd { margin: 2px 0 0; font-size: 13px; }
+.action-bar { display: flex; align-items: center; gap: 8px; border-top: 1px dashed var(--border); padding-top: 10px; }
+.action-label { font-size: 13px; color: var(--muted); }
+.scope-form { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 10px; background: #fdf6e4; border-radius: 6px; padding: 10px; }
+.scope-form .form-item { flex: 1; }
+.scope-form .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline-item { display: flex; gap: 10px; padding-bottom: 14px; position: relative; }
+.timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 5px; top: 14px; bottom: 0; width: 2px; background: var(--border); }
+.timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); margin-top: 3px; flex: none; z-index: 1; }
+.timeline-head { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
+.timeline-note { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
